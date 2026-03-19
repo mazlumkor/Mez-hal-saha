@@ -7,13 +7,32 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-neon-green rounded-xl flex items-center justify-center shadow-lg shadow-neon-green/40">
-                <Trophy className="text-black w-6 h-6" />
+            <div className="flex items-center gap-3">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-neon-green to-emerald-600 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <div className="relative w-10 h-10 bg-black rounded-xl flex items-center justify-center border border-white/10 shadow-2xl">
+                  <svg viewBox="0 0 100 100" className="w-6 h-6">
+                    <path 
+                      d="M20 80V20L50 50L80 20V80" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="12" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                      className="text-neon-green"
+                    />
+                    <circle cx="50" cy="50" r="8" className="fill-neon-green animate-pulse" />
+                  </svg>
+                </div>
               </div>
-              <span className="text-2xl font-black tracking-tighter text-white">
-                MEZ <span className="text-neon-green">HALISAHA</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="text-xl font-black tracking-tighter text-white leading-none">
+                  MEZ<span className="text-neon-green">.</span>
+                </span>
+                <span className="text-[7px] font-black tracking-[0.4em] text-zinc-500 uppercase leading-none mt-1">
+                  HALISAHA KOMPLEKSİ
+                </span>
+              </div>
             </div>
             <p className="text-zinc-400 text-sm leading-relaxed font-medium">
               Şehrin en modern futbol kompleksi. Profesyonel zemin, 

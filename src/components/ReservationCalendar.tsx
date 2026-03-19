@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, addDays, startOfToday } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Clock, CheckCircle2 } from 'lucide-react';
 import { TIME_SLOTS } from '../constants';
 import { cn } from '../lib/utils';
+import { io } from 'socket.io-client';
+
+const socket = io();
+
+interface Reservation {
+  date: string;
+  slot: string;
+}
 
 interface ReservationCalendarProps {
   onSelectSlot: (date: Date, slot: string) => void;
@@ -13,14 +21,39 @@ interface ReservationCalendarProps {
 export default function ReservationCalendar({ onSelectSlot }: ReservationCalendarProps) {
   const [selectedDate, setSelectedDate] = useState(startOfToday());
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [reservedSlots, setReservedSlots] = useState<Reservation[]>([]);
 
-  // Mock booked slots for demonstration
-  const bookedSlots = ['19:00 - 20:00', '21:00 - 22:00', '22:00 - 23:00'];
+  useEffect(() => {
+    const fetchReservations = async () => {
+      try {
+        const response = await fetch('/api/reservations');
+        const data = await response.json();
+        setReservedSlots(data);
+      } catch (error) {
+        console.error('Rezervasyonlar yüklenemedi:', error);
+      }
+    };
+
+    fetchReservations();
+
+    socket.on('reservation_update', (data: Reservation[]) => {
+      setReservedSlots(data);
+    });
+
+    return () => {
+      socket.off('reservation_update');
+    };
+  }, []);
 
   const days = Array.from({ length: 7 }, (_, i) => addDays(startOfToday(), i));
 
+  const isReserved = useCallback((date: Date, slot: string) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return reservedSlots.some(r => r.date === dateStr && r.slot === slot);
+  }, [reservedSlots]);
+
   const handleSlotClick = (slot: string) => {
-    if (bookedSlots.includes(slot)) return;
+    if (isReserved(selectedDate, slot)) return;
     setSelectedSlot(slot);
     onSelectSlot(selectedDate, slot);
   };
@@ -109,17 +142,17 @@ export default function ReservationCalendar({ onSelectSlot }: ReservationCalenda
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {TIME_SLOTS.map((slot) => {
-                const isBooked = bookedSlots.includes(slot);
+                const reserved = isReserved(selectedDate, slot);
                 const isSelected = selectedSlot === slot;
 
                 return (
                   <button
                     key={slot}
-                    disabled={isBooked}
+                    disabled={reserved}
                     onClick={() => handleSlotClick(slot)}
                     className={cn(
                       'p-6 rounded-2xl border transition-all duration-500 relative overflow-hidden font-black tracking-tight text-lg',
-                      isBooked
+                      reserved
                         ? 'bg-red-500/5 border-red-500/10 text-red-500/20 cursor-not-allowed'
                         : isSelected
                         ? 'bg-neon-green border-neon-green text-black shadow-[0_0_20px_rgba(57,255,20,0.2)]'
@@ -127,9 +160,10 @@ export default function ReservationCalendar({ onSelectSlot }: ReservationCalenda
                     )}
                   >
                     {slot}
-                    {isBooked && (
-                      <div className="absolute top-0 right-0 p-1.5">
-                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                    {reserved && (
+                      <div className="absolute top-0 right-0 p-1.5 flex flex-col items-end">
+                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full mb-1" />
+                        <span className="text-[8px] font-black text-red-500 uppercase tracking-widest">DOLU</span>
                       </div>
                     )}
                   </button>

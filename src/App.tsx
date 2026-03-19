@@ -17,7 +17,7 @@ import Footer from './components/Footer';
 export default function App() {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<{ date: string; slot: string } | null>(null);
+  const [selectedReservation, setSelectedReservation] = useState<{ date: string; slot: string; rawDate: Date } | null>(null);
 
   useEffect(() => {
     // Expose payment modal trigger to window for the calendar component
@@ -44,6 +44,7 @@ export default function App() {
     setSelectedReservation({
       date: format(date, 'd MMMM yyyy', { locale: tr }),
       slot,
+      rawDate: date,
     });
   };
 

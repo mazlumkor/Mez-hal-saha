@@ -2,30 +2,55 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, CreditCard, ShieldCheck, Lock } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { format } from 'date-fns';
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  reservationDetails: { date: string; slot: string } | null;
+  reservationDetails: { date: string; slot: string; rawDate: Date } | null;
 }
 
 export default function PaymentModal({ isOpen, onClose, reservationDetails }: PaymentModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'iban'>('card');
+  const [error, setError] = useState<string | null>(null);
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!reservationDetails) return;
+
     setIsProcessing(true);
-    // Simulate payment
-    setTimeout(() => {
-      setIsProcessing(false);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/reserve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          date: format(reservationDetails.rawDate, 'yyyy-MM-dd'),
+          slot: reservationDetails.slot,
+          userEmail: 'demo@user.com', // In a real app, this would come from auth
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Rezervasyon sırasında bir hata oluştu.');
+      }
+
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
         onClose();
       }, 3000);
-    }, 2000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -148,6 +173,12 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails }: Pa
                         <Lock className="w-3 h-3" />
                         256-BIT SSL GÜVENLİ ÖDEME
                       </div>
+
+                      {error && (
+                        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-xs text-red-500 text-center font-bold">
+                          {error}
+                        </div>
+                      )}
 
                       <button
                         disabled={isProcessing}
