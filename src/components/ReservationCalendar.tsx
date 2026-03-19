@@ -23,12 +23,23 @@ export default function ReservationCalendar({ onSelectSlot }: ReservationCalenda
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [reservedSlots, setReservedSlots] = useState<Reservation[]>([]);
   const summaryRef = useRef<HTMLDivElement>(null);
+  const timeSelectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (selectedSlot && summaryRef.current) {
       summaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [selectedSlot]);
+
+  const handleDateSelect = (day: Date) => {
+    setSelectedDate(day);
+    setSelectedSlot(null);
+    setTimeout(() => {
+      if (timeSelectionRef.current) {
+        timeSelectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -96,7 +107,7 @@ export default function ReservationCalendar({ onSelectSlot }: ReservationCalenda
                 return (
                   <button
                     key={day.toISOString()}
-                    onClick={() => setSelectedDate(day)}
+                    onClick={() => handleDateSelect(day)}
                     className={cn(
                       'flex items-center justify-between p-6 rounded-[2rem] border transition-all duration-500 text-left group relative overflow-hidden',
                       isSelected
@@ -125,7 +136,7 @@ export default function ReservationCalendar({ onSelectSlot }: ReservationCalenda
           </div>
 
           {/* Time Selection */}
-          <div className="lg:col-span-8 space-y-8">
+          <div ref={timeSelectionRef} className="lg:col-span-8 space-y-8">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3 text-neon-green">
                 <Clock className="w-5 h-5" />
