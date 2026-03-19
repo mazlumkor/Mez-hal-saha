@@ -95,34 +95,9 @@ export default function Footer() {
           <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">
             © 2026 Mez Halısaha. Tüm hakları saklıdır.
           </p>
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="flex flex-col items-center md:items-start gap-2">
-              <span className="text-[8px] text-gray-600 font-black uppercase tracking-[0.2em]">Ödeme Yöntemleri</span>
-              <div className="flex items-center gap-6 bg-white/95 py-2 px-6 rounded-xl shadow-inner">
-                <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1024px-Mastercard-logo.svg.png" 
-                  alt="Mastercard" 
-                  className="h-6 w-auto object-contain" 
-                  referrerPolicy="no-referrer"
-                />
-                <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Troy_logo.svg/1024px-Troy_logo.svg.png" 
-                  alt="Troy" 
-                  className="h-4 w-auto object-contain" 
-                  referrerPolicy="no-referrer"
-                />
-                <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1024px-Visa_Inc._logo.svg.png" 
-                  alt="Visa" 
-                  className="h-4 w-auto object-contain" 
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-            </div>
-            <div className="flex gap-8">
-              <a href="#" className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Gizlilik Politikası</a>
-              <a href="#" className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Kullanım Şartları</a>
-            </div>
+          <div className="flex gap-8">
+            <a href="#" className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Gizlilik Politikası</a>
+            <a href="#" className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Kullanım Şartları</a>
           </div>
         </div>
       </div>

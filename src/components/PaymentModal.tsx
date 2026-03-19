@@ -209,36 +209,13 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center gap-3 md:gap-4">
-                        <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">Kabul Edilen Kartlar</div>
-                        <div className="flex items-center justify-center gap-8 bg-white py-4 px-8 rounded-2xl shadow-inner">
-                          <img 
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1024px-Mastercard-logo.svg.png" 
-                            alt="Mastercard" 
-                            className="h-8 w-auto object-contain" 
-                            referrerPolicy="no-referrer"
-                          />
-                          <img 
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Troy_logo.svg/1024px-Troy_logo.svg.png" 
-                            alt="Troy" 
-                            className="h-6 w-auto object-contain" 
-                            referrerPolicy="no-referrer"
-                          />
-                          <img 
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1024px-Visa_Inc._logo.svg.png" 
-                            alt="Visa" 
-                            className="h-5 w-auto object-contain" 
-                            referrerPolicy="no-referrer"
-                          />
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                          <Lock className="w-3 h-3 text-neon-green" />
+                          256-BIT SSL GÜVENLİ ÖDEME
                         </div>
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                            <Lock className="w-3 h-3 text-neon-green" />
-                            256-BIT SSL GÜVENLİ ÖDEME
-                          </div>
-                          <div className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest">
-                            Kart bilgileriniz sunucularımızda saklanmaz
-                          </div>
+                        <div className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest">
+                          Kart bilgileriniz sunucularımızda saklanmaz
                         </div>
                       </div>
 
