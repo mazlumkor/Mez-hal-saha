@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Trophy, Calendar, Users, CreditCard, LogIn } from 'lucide-react';
+import { Menu, X, Trophy, Calendar, Users, LogIn, LogOut, ShieldCheck, User } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export default function Navbar() {
+interface NavbarProps {
+  onLoginClick: () => void;
+  user: any;
+  onLogout: () => void;
+}
+
+export default function Navbar({ onLoginClick, user, onLogout }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -19,7 +25,6 @@ export default function Navbar() {
     { name: 'Ana Sayfa', href: '#home', icon: Trophy },
     { name: 'Hizmetler', href: '#services', icon: Users },
     { name: 'Rezervasyon', href: '#booking', icon: Calendar },
-    { name: 'Abone Girişi', href: '#login', icon: LogIn },
   ];
 
   return (
@@ -69,19 +74,51 @@ export default function Navbar() {
               {link.name}
             </a>
           ))}
+          
           <div className="flex items-center gap-6 ml-4 border-l border-white/10 pl-8">
-            <button 
-              onClick={() => (window as any).openLoginModal()}
-              className="text-[11px] font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-[0.2em]"
-            >
-              GİRİŞ YAP
-            </button>
-            <button 
-              onClick={() => (window as any).openLoginModal()}
-              className="bg-neon-green text-black px-8 py-3 rounded-full font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_20px_rgba(57,255,20,0.3)]"
-            >
-              KAYIT OL
-            </button>
+            {user ? (
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                    {user.role === 'admin' && <ShieldCheck className="w-3 h-3 text-neon-green" />}
+                    {user.name}
+                  </span>
+                  <span className="text-[8px] font-bold text-neon-green uppercase tracking-widest">
+                    {user.role === 'admin' ? 'YÖNETİCİ' : (user.teamName || 'BİREYSEL')}
+                  </span>
+                </div>
+                {user.role === 'admin' && (
+                  <a 
+                    href="#admin" 
+                    className="text-[10px] font-black text-neon-green hover:text-white transition-colors uppercase tracking-widest border border-neon-green/20 px-4 py-2 rounded-lg bg-neon-green/5"
+                  >
+                    PANEL
+                  </a>
+                )}
+                <button 
+                  onClick={onLogout}
+                  className="p-2 hover:bg-white/5 rounded-full transition-colors group"
+                  title="Çıkış Yap"
+                >
+                  <LogOut className="w-5 h-5 text-zinc-500 group-hover:text-red-500 transition-colors" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <button 
+                  onClick={onLoginClick}
+                  className="text-[11px] font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-[0.2em]"
+                >
+                  GİRİŞ YAP
+                </button>
+                <button 
+                  onClick={onLoginClick}
+                  className="bg-neon-green text-black px-8 py-3 rounded-full font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_20px_rgba(57,255,20,0.3)]"
+                >
+                  KAYIT OL
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -112,19 +149,56 @@ export default function Navbar() {
                   {link.name}
                 </a>
               ))}
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <button 
-                  onClick={() => { setIsOpen(false); (window as any).openLoginModal(); }}
-                  className="py-3 rounded-xl font-bold border border-white/10 text-gray-300 hover:bg-white/5 transition-colors"
-                >
-                  GİRİŞ
-                </button>
-                <button 
-                  onClick={() => { setIsOpen(false); (window as any).openLoginModal(); }}
-                  className="bg-neon-green text-black py-3 rounded-xl font-bold hover:scale-[1.02] transition-transform"
-                >
-                  KAYIT
-                </button>
+              
+              <div className="mt-4 pt-4 border-t border-white/5">
+                {user ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-neon-green/10 rounded-xl flex items-center justify-center border border-neon-green/20">
+                          <User className="w-5 h-5 text-neon-green" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-black text-white uppercase tracking-widest">{user.name}</div>
+                          <div className="text-[10px] font-bold text-neon-green uppercase tracking-widest">
+                            {user.role === 'admin' ? 'YÖNETİCİ' : (user.teamName || 'BİREYSEL')}
+                          </div>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => { onLogout(); setIsOpen(false); }}
+                        className="p-3 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20"
+                      >
+                        <LogOut className="w-5 h-5" />
+                      </button>
+                    </div>
+                    {user.role === 'admin' && (
+                      <a 
+                        href="#admin"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center justify-center gap-2 w-full py-4 bg-neon-green/10 text-neon-green font-black rounded-xl border border-neon-green/20"
+                      >
+                        <ShieldCheck className="w-5 h-5" />
+                        YÖNETİM PANELİ
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => { setIsOpen(false); onLoginClick(); }}
+                      className="py-3 rounded-xl font-bold border border-white/10 text-gray-300 hover:bg-white/5 transition-colors"
+                    >
+                      GİRİŞ
+                    </button>
+                    <button 
+                      onClick={() => { setIsOpen(false); onLoginClick(); }}
+                      className="bg-neon-green text-black py-3 rounded-xl font-bold hover:scale-[1.02] transition-transform"
+                    >
+                      KAYIT
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

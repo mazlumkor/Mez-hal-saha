@@ -12,14 +12,23 @@ import Services from './components/Services';
 import ReservationCalendar from './components/ReservationCalendar';
 import PaymentModal from './components/PaymentModal';
 import LoginModal from './components/LoginModal';
+import AdminPanel from './components/AdminPanel';
 import Footer from './components/Footer';
 
 export default function App() {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState<{ date: string; slot: string; rawDate: Date } | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    // Check for stored user
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
     // Expose payment modal trigger to window for the calendar component
     (window as any).openPaymentModal = () => setIsPaymentOpen(true);
     (window as any).openLoginModal = () => setIsLoginOpen(true);
@@ -29,6 +38,9 @@ export default function App() {
       if (window.location.hash === '#login') {
         setIsLoginOpen(true);
       }
+      if (window.location.hash === '#admin') {
+        setIsAdminOpen(true);
+      }
     };
 
     window.addEventListener('hashchange', handleHashChange);
@@ -36,9 +48,23 @@ export default function App() {
     if (window.location.hash === '#login') {
       setIsLoginOpen(true);
     }
+    if (window.location.hash === '#admin') {
+      setIsAdminOpen(true);
+    }
 
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+
+  const handleLoginSuccess = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    setIsAdminOpen(false);
+  };
 
   const handleSelectSlot = (date: Date, slot: string) => {
     setSelectedReservation({
@@ -48,9 +74,14 @@ export default function App() {
     });
   };
 
+  const closeAdmin = () => {
+    setIsAdminOpen(false);
+    window.history.pushState("", document.title, window.location.pathname + window.location.search);
+  };
+
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
-      <Navbar />
+    <div className="min-h-screen bg-[#050505] text-white selection:bg-neon-green selection:text-black">
+      <Navbar onLoginClick={() => setIsLoginOpen(true)} user={user} onLogout={handleLogout} />
       
       <main>
         <Hero />
@@ -65,6 +96,7 @@ export default function App() {
         isOpen={isPaymentOpen} 
         onClose={() => setIsPaymentOpen(false)} 
         reservationDetails={selectedReservation}
+        user={user}
       />
       
       <LoginModal 
@@ -74,7 +106,12 @@ export default function App() {
           // Clear hash without jump
           window.history.pushState("", document.title, window.location.pathname + window.location.search);
         }} 
+        onLoginSuccess={handleLoginSuccess}
       />
+
+      {isAdminOpen && user?.role === 'admin' && (
+        <AdminPanel user={user} onClose={closeAdmin} />
+      )}
 
       {/* PWA Install Prompt (Simplified) */}
       <div className="fixed bottom-6 right-6 z-40">

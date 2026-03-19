@@ -8,10 +8,50 @@ interface LoginModalProps {
   onClose: () => void;
 }
 
-export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps & { onLoginSuccess: (user: any) => void }) {
   const [isLogin, setIsLogin] = useState(true);
   const [loginType, setLoginType] = useState<'individual' | 'team'>('individual');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Form states
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [teamName, setTeamName] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    const endpoint = isLogin ? '/api/login' : '/api/register';
+    const payload = isLogin 
+      ? { email, password }
+      : { email, password, name, teamName, role: 'user' };
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Bir hata oluştu.');
+      }
+
+      onLoginSuccess(data.user);
+      onClose();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -40,12 +80,18 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 </button>
               </div>
 
+              {error && (
+                <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-xs text-red-500 font-bold text-center">
+                  {error}
+                </div>
+              )}
+
               {!showForgotPassword && (
                 <div className="space-y-6 mb-8">
                   {/* Login/Register Toggle */}
                   <div className="flex p-1.5 bg-black/40 rounded-2xl border border-white/5">
                     <button
-                      onClick={() => setIsLogin(true)}
+                      onClick={() => { setIsLogin(true); setError(null); }}
                       className={cn(
                         'flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all',
                         isLogin ? 'bg-neon-green text-black shadow-lg' : 'text-zinc-500 hover:text-white'
@@ -54,7 +100,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       GİRİŞ YAP
                     </button>
                     <button
-                      onClick={() => setIsLogin(false)}
+                      onClick={() => { setIsLogin(false); setError(null); }}
                       className={cn(
                         'flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all',
                         !isLogin ? 'bg-neon-green text-black shadow-lg' : 'text-zinc-500 hover:text-white'
@@ -88,7 +134,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 </div>
               )}
 
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 {showForgotPassword ? (
                   <div className="space-y-6">
                     <p className="text-sm text-gray-400 leading-relaxed">
@@ -98,6 +144,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-1 block">E-Posta</label>
                       <input
                         type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder={loginType === 'team' ? "takim@mezhalisaha.com" : "kullanici@email.com"}
                         className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
                       />
@@ -124,6 +173,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         <div className="relative">
                           <input
                             type="text"
+                            required
+                            value={teamName}
+                            onChange={(e) => setTeamName(e.target.value)}
                             placeholder="ŞAMPİYONLAR FC"
                             className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
                           />
@@ -136,6 +188,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-1 block">Ad Soyad</label>
                         <input
                           type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
                           placeholder="AHMET YILMAZ"
                           className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
                         />
@@ -145,6 +200,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-1 block">E-Posta</label>
                       <input
                         type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder={loginType === 'team' ? "takim@mezhalisaha.com" : "kullanici@email.com"}
                         className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
                       />
@@ -165,6 +223,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       <div className="relative">
                         <input
                           type="password"
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
                           className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
                         />
@@ -173,10 +234,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     </div>
 
                     <button
-                      type="button"
-                      className="w-full py-5 bg-neon-green text-black font-black rounded-2xl hover:scale-[1.02] transition-transform shadow-xl shadow-neon-green/40 flex items-center justify-center gap-3"
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full py-5 bg-neon-green text-black font-black rounded-2xl hover:scale-[1.02] transition-transform shadow-xl shadow-neon-green/40 flex items-center justify-center gap-3 disabled:opacity-50"
                     >
-                      {isLogin ? 'GİRİŞ YAP' : 'KAYIT OL'} <ArrowRight className="w-5 h-5" />
+                      {isLoading ? (
+                        <div className="w-6 h-6 border-4 border-black/20 border-t-black rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          {isLogin ? 'GİRİŞ YAP' : 'KAYIT OL'} <ArrowRight className="w-5 h-5" />
+                        </>
+                      )}
                     </button>
                   </>
                 )}

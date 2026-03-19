@@ -8,9 +8,10 @@ interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   reservationDetails: { date: string; slot: string; rawDate: Date } | null;
+  user: any;
 }
 
-export default function PaymentModal({ isOpen, onClose, reservationDetails }: PaymentModalProps) {
+export default function PaymentModal({ isOpen, onClose, reservationDetails, user }: PaymentModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'iban'>('card');
@@ -32,7 +33,8 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails }: Pa
         body: JSON.stringify({
           date: format(reservationDetails.rawDate, 'yyyy-MM-dd'),
           slot: reservationDetails.slot,
-          userEmail: 'demo@user.com', // In a real app, this would come from auth
+          userEmail: user?.email || 'misafir@email.com',
+          userName: user?.name || 'Misafir',
         }),
       });
 
