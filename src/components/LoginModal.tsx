@@ -39,7 +39,15 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json();
+      let data;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Sunucudan beklenmeyen yanıt:', text);
+        throw new Error('Sunucu şu an yanıt veremiyor. Lütfen daha sonra tekrar deneyin.');
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Bir hata oluştu.');
@@ -52,7 +60,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       onLoginSuccess(data.user);
       onClose();
     } catch (err: any) {
-      setError(err.message);
+      if (err.message.includes('Unexpected token') || err.message.includes('is not valid JSON')) {
+        setError('Sunucu hatası oluştu. Lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +73,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6 py-10">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -73,9 +85,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+            className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh]"
           >
-            <div className="p-8">
+            <div className="p-8 overflow-y-auto custom-scrollbar">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-2xl font-black tracking-tighter uppercase text-white">
                   {showForgotPassword ? 'Şifremi' : (isLogin ? (loginType === 'team' ? 'Takım' : 'Kullanıcı') : 'Yeni')} <span className="text-neon-green">{showForgotPassword ? 'Unuttum' : (isLogin ? 'Girişi' : (loginType === 'team' ? 'Takım' : 'Hesap'))}</span>

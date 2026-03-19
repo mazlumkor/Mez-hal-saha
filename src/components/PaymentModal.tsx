@@ -50,8 +50,17 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
         }),
       });
 
+      let data;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Sunucudan beklenmeyen yanıt:', text);
+        throw new Error('Sunucu şu an yanıt veremiyor. Lütfen daha sonra tekrar deneyin.');
+      }
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.error || 'Rezervasyon sırasında bir hata oluştu.');
       }
 
@@ -65,7 +74,11 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
         onClose();
       }, 3000);
     } catch (err: any) {
-      setError(err.message);
+      if (err.message.includes('Unexpected token') || err.message.includes('is not valid JSON')) {
+        setError('İşlem sırasında sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -74,7 +87,7 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6 py-10">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -86,10 +99,10 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+            className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh]"
           >
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-8">
+            <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar">
+              <div className="flex items-center justify-between mb-6 md:mb-8">
                 <h3 className="text-2xl font-black tracking-tighter uppercase text-white">Ödeme <span className="text-neon-green">Paneli</span></h3>
                 <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
                   <X className="w-6 h-6 text-gray-500" />
@@ -97,19 +110,19 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
               </div>
 
               {isSuccess ? (
-                <div className="py-12 text-center">
-                  <div className="w-20 h-20 bg-neon-green rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-neon-green/40">
-                    <ShieldCheck className="text-black w-10 h-10" />
+                <div className="py-8 md:py-12 text-center">
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-neon-green rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-neon-green/40">
+                    <ShieldCheck className="text-black w-8 h-8 md:w-10 md:h-10" />
                   </div>
                   <h4 className="text-2xl font-bold mb-2 text-white">Ödeme Başarılı!</h4>
-                  <p className="text-gray-400 mb-6">Rezervasyonunuz onaylandı. E-posta ile bilgilendirme gönderildi.</p>
-                  <div className="p-4 rounded-2xl bg-neon-green/10 border border-neon-green/20 text-sm text-neon-green">
+                  <p className="text-gray-400 mb-6 text-sm">Rezervasyonunuz onaylandı. E-posta ile bilgilendirme gönderildi.</p>
+                  <div className="p-4 rounded-2xl bg-neon-green/10 border border-neon-green/20 text-xs md:text-sm text-neon-green">
                     <strong>Not:</strong> Kalan 2.500 TL tutarı maç günü tesiste nakit veya kartla ödeyebilirsiniz.
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  <div className="p-4 rounded-2xl bg-black/40 border border-white/10 mb-6">
+                <div className="space-y-4 md:space-y-6">
+                  <div className="p-4 rounded-2xl bg-black/40 border border-white/10 mb-4 md:mb-6">
                     <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Rezervasyon Özeti</div>
                     <div className="text-sm font-bold text-white">
                       {reservationDetails?.date} | {reservationDetails?.slot}
@@ -129,11 +142,11 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                     </div>
                   </div>
 
-                  <div className="flex p-1.5 bg-black/40 rounded-2xl mb-8 border border-white/5">
+                  <div className="flex p-1 bg-black/40 rounded-2xl mb-6 md:mb-8 border border-white/5">
                     <button
                       onClick={() => setPaymentMethod('card')}
                       className={cn(
-                        'flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all',
+                        'flex-1 py-2.5 md:py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all',
                         paymentMethod === 'card' ? 'bg-neon-green text-black shadow-lg' : 'text-zinc-500 hover:text-white'
                       )}
                     >
@@ -142,7 +155,7 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                     <button
                       onClick={() => setPaymentMethod('iban')}
                       className={cn(
-                        'flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all',
+                        'flex-1 py-2.5 md:py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all',
                         paymentMethod === 'iban' ? 'bg-neon-green text-black shadow-lg' : 'text-zinc-500 hover:text-white'
                       )}
                     >
@@ -151,15 +164,15 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                   </div>
 
                   {paymentMethod === 'card' ? (
-                    <form onSubmit={handlePayment} className="space-y-6">
-                      <div className="space-y-4">
+                    <form onSubmit={handlePayment} className="space-y-4 md:space-y-6">
+                      <div className="space-y-3 md:space-y-4">
                         <div className="relative">
                           <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-1 block">Kart Sahibi</label>
                           <input
                             required
                             type="text"
                             placeholder="AD SOYAD"
-                            className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
+                            className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 md:py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white text-sm"
                           />
                         </div>
                         <div className="relative">
@@ -169,7 +182,7 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                               required
                               type="text"
                               placeholder="0000 0000 0000 0000"
-                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
+                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 md:py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white text-sm"
                             />
                             <CreditCard className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700" />
                           </div>
@@ -181,7 +194,7 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                               required
                               type="text"
                               placeholder="AA/YY"
-                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
+                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 md:py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white text-sm"
                             />
                           </div>
                           <div className="relative">
@@ -190,17 +203,17 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                               required
                               type="text"
                               placeholder="000"
-                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
+                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 md:py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white text-sm"
                             />
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="flex items-center gap-4 opacity-50 grayscale hover:grayscale-0 transition-all">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-6" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Troy_logo.svg/1200px-Troy_logo.svg.png" alt="Troy" className="h-4" />
+                      <div className="flex flex-col items-center gap-3 md:gap-4">
+                        <div className="flex items-center gap-4 opacity-100 transition-all">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-3 md:h-4" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-5 md:h-6" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Troy_logo.svg/1200px-Troy_logo.svg.png" alt="Troy" className="h-3 md:h-4" />
                         </div>
                         <div className="flex flex-col items-center gap-1">
                           <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
@@ -222,7 +235,7 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                       <button
                         disabled={isProcessing}
                         type="submit"
-                        className="w-full py-5 bg-neon-green text-black font-black rounded-2xl hover:scale-[1.02] transition-transform shadow-xl shadow-neon-green/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                        className="w-full py-4 md:py-5 bg-neon-green text-black font-black rounded-2xl hover:scale-[1.02] transition-transform shadow-xl shadow-neon-green/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                       >
                         {isProcessing ? (
                           <div className="w-6 h-6 border-4 border-black/20 border-t-black rounded-full animate-spin" />
@@ -232,16 +245,16 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                       </button>
                     </form>
                   ) : (
-                    <div className="space-y-6">
-                      <div className="p-6 rounded-2xl bg-neon-green/5 border border-neon-green/10 space-y-4">
+                    <div className="space-y-4 md:space-y-6">
+                      <div className="p-5 md:p-6 rounded-2xl bg-neon-green/5 border border-neon-green/10 space-y-3 md:space-y-4">
                         <div>
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Banka Adı</div>
-                          <div className="font-bold text-white">GARANTİ BANKASI</div>
+                          <div className="font-bold text-white text-sm">GARANTİ BANKASI</div>
                         </div>
                         <div className="group relative">
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Hesap Sahibi</div>
                           <div className="flex items-center justify-between">
-                            <div className="font-bold text-white">{ACCOUNT_HOLDER}</div>
+                            <div className="font-bold text-white text-sm">{ACCOUNT_HOLDER}</div>
                             <button 
                               onClick={() => copyToClipboard(ACCOUNT_HOLDER, "İsim Soyisim")}
                               className="p-2 hover:bg-neon-green/20 rounded-lg transition-colors text-neon-green"
@@ -253,7 +266,7 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                         <div className="group relative">
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">IBAN</div>
                           <div className="flex items-center justify-between gap-4">
-                            <div className="font-mono font-bold text-white break-all text-xs">{IBAN}</div>
+                            <div className="font-mono font-bold text-white break-all text-[11px]">{IBAN}</div>
                             <button 
                               onClick={() => copyToClipboard(IBAN, "IBAN")}
                               className="p-2 hover:bg-neon-green/20 rounded-lg transition-colors text-neon-green shrink-0"
@@ -264,16 +277,16 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                         </div>
                         <div>
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Açıklama</div>
-                          <div className="font-bold text-neon-green uppercase">REZ-{reservationDetails?.slot.split(' ')[0]}</div>
+                          <div className="font-bold text-neon-green uppercase text-sm">REZ-{reservationDetails?.slot.split(' ')[0]}</div>
                         </div>
                       </div>
-                      <p className="text-[10px] text-gray-500 text-center leading-relaxed">
+                      <p className="text-[10px] text-gray-500 text-center leading-relaxed px-4">
                         * Ödemeyi yaptıktan sonra dekontunuzu WhatsApp üzerinden iletmeyi unutmayın. 
                         Rezervasyonunuz dekont sonrası onaylanacaktır.
                       </p>
                       <button
                         onClick={() => setIsSuccess(true)}
-                        className="w-full py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all shadow-xl"
+                        className="w-full py-4 md:py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all shadow-xl"
                       >
                         ÖDEMEYİ YAPTIM
                       </button>

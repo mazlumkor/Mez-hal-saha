@@ -73,7 +73,7 @@ export default function Services() {
                 </div>
                 <h4 className="text-white font-black text-lg mb-3 uppercase tracking-tight">Kapora Sistemi</h4>
                 <p className="text-zinc-400 text-sm leading-relaxed font-medium">
-                  Rezervasyonunuzu kesinleştirmek için 250 TL kapora ödemesi alınır. 
+                  Rezervasyonunuzu kesinleştirmek için 500 TL kapora ödemesi alınır. 
                   Kalan ücret maç günü sahada nakit veya IBAN ile ödenir.
                 </p>
               </div>
