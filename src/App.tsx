@@ -14,12 +14,24 @@ import ReservationCalendar from './components/ReservationCalendar';
 import PaymentModal from './components/PaymentModal';
 import LoginModal from './components/LoginModal';
 import AdminPanel from './components/AdminPanel';
+import Location from './components/Location';
+import ProfileModal from './components/ProfileModal';
+import LegalModal from './components/LegalModal';
+import { LegalType } from './constants/legalContent';
 import Footer from './components/Footer';
 
 export default function App() {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLegalOpen, setIsLegalOpen] = useState(false);
+  const [legalType, setLegalType] = useState<LegalType | null>(null);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+
+  const openLegalModal = (type: LegalType) => {
+    setLegalType(type);
+    setIsLegalOpen(true);
+  };
   const [selectedReservation, setSelectedReservation] = useState<{ date: string; slot: string; rawDate: Date } | null>(null);
   const [user, setUser] = useState<any>(null);
 
@@ -30,9 +42,11 @@ export default function App() {
       setUser(JSON.parse(storedUser));
     }
 
-    // Expose payment modal trigger to window for the calendar component
+    // Expose modal triggers to window
     (window as any).openPaymentModal = () => setIsPaymentOpen(true);
     (window as any).openLoginModal = () => setIsLoginOpen(true);
+    (window as any).openProfileModal = () => setIsProfileOpen(true);
+    (window as any).openLegalModal = (type: LegalType) => openLegalModal(type);
 
     // Handle hash changes for the login modal
     const handleHashChange = () => {
@@ -83,12 +97,18 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-neon-green selection:text-black">
       <Toaster position="top-center" expand={false} richColors theme="dark" />
-      <Navbar onLoginClick={() => setIsLoginOpen(true)} user={user} onLogout={handleLogout} />
+      <Navbar 
+        onLoginClick={() => setIsLoginOpen(true)} 
+        onProfileClick={() => setIsProfileOpen(true)}
+        user={user} 
+        onLogout={handleLogout} 
+      />
       
       <main>
         <Hero />
         <Services />
         <ReservationCalendar onSelectSlot={handleSelectSlot} />
+        <Location />
       </main>
 
       <Footer />
@@ -109,6 +129,19 @@ export default function App() {
           window.history.pushState("", document.title, window.location.pathname + window.location.search);
         }} 
         onLoginSuccess={handleLoginSuccess}
+      />
+
+      <ProfileModal 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+        user={user} 
+        onLogout={handleLogout} 
+      />
+
+      <LegalModal 
+        isOpen={isLegalOpen} 
+        onClose={() => setIsLegalOpen(false)} 
+        type={legalType} 
       />
 
       {isAdminOpen && user?.role === 'admin' && (

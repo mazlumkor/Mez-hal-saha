@@ -63,11 +63,11 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-sm text-zinc-400">
                 <MapPin className="w-5 h-5 text-neon-green shrink-0" />
-                <span className="font-medium">Futbol Cad. No:123, <br />Merkez, İstanbul</span>
+                <span className="font-medium">Türkoba Mahallesi Ezel Sokak No:21, <br />Büyükçekmece, İstanbul</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-400">
                 <Phone className="w-5 h-5 text-neon-green shrink-0" />
-                <span className="font-medium">+90 (212) 555 00 00</span>
+                <span className="font-medium">+90 546 224 93 29</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-400">
                 <Mail className="w-5 h-5 text-neon-green shrink-0" />
@@ -95,9 +95,12 @@ export default function Footer() {
           <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">
             © 2026 Mez Halısaha. Tüm hakları saklıdır.
           </p>
-          <div className="flex gap-8">
-            <a href="#" className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Gizlilik Politikası</a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Kullanım Şartları</a>
+          <div className="flex flex-wrap justify-center md:justify-end gap-x-8 gap-y-4">
+            <button onClick={() => (window as any).openLegalModal('about')} className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Hakkında</button>
+            <button onClick={() => (window as any).openLegalModal('privacy')} className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Gizlilik Politikası</button>
+            <button onClick={() => (window as any).openLegalModal('terms')} className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Kullanım Şartları</button>
+            <button onClick={() => (window as any).openLegalModal('clarification')} className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Aydınlatma Metni</button>
+            <button onClick={() => (window as any).openLegalModal('distanceSelling')} className="text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Mesafeli Satış Sözleşmesi</button>
           </div>
         </div>
       </div>

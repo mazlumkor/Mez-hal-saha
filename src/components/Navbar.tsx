@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Trophy, Calendar, Users, LogIn, LogOut, ShieldCheck, User } from 'lucide-react';
+import { Menu, X, Trophy, Calendar, Users, LogIn, LogOut, ShieldCheck, User, MapPin } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface NavbarProps {
   onLoginClick: () => void;
+  onProfileClick: () => void;
   user: any;
   onLogout: () => void;
 }
 
-export default function Navbar({ onLoginClick, user, onLogout }: NavbarProps) {
+export default function Navbar({ onLoginClick, onProfileClick, user, onLogout }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -25,6 +26,7 @@ export default function Navbar({ onLoginClick, user, onLogout }: NavbarProps) {
     { name: 'Ana Sayfa', href: '#home', icon: Trophy },
     { name: 'Hizmetler', href: '#services', icon: Users },
     { name: 'Rezervasyon', href: '#booking', icon: Calendar },
+    { name: 'Konum', href: '#location', icon: MapPin },
   ];
 
   return (
@@ -79,10 +81,13 @@ export default function Navbar({ onLoginClick, user, onLogout }: NavbarProps) {
             {user ? (
               <div className="flex items-center gap-6">
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                  <button 
+                    onClick={onProfileClick}
+                    className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2 hover:text-neon-green transition-colors"
+                  >
                     {user.role === 'admin' && <ShieldCheck className="w-3 h-3 text-neon-green" />}
                     {user.name}
-                  </span>
+                  </button>
                   <span className="text-[8px] font-bold text-neon-green uppercase tracking-widest">
                     {user.role === 'admin' ? 'YÖNETİCİ' : (user.teamName || 'BİREYSEL')}
                   </span>
@@ -155,11 +160,19 @@ export default function Navbar({ onLoginClick, user, onLogout }: NavbarProps) {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-neon-green/10 rounded-xl flex items-center justify-center border border-neon-green/20">
+                        <button 
+                          onClick={() => { onProfileClick(); setIsOpen(false); }}
+                          className="w-10 h-10 bg-neon-green/10 rounded-xl flex items-center justify-center border border-neon-green/20 hover:bg-neon-green/20 transition-colors"
+                        >
                           <User className="w-5 h-5 text-neon-green" />
-                        </div>
+                        </button>
                         <div>
-                          <div className="text-sm font-black text-white uppercase tracking-widest">{user.name}</div>
+                          <button 
+                            onClick={() => { onProfileClick(); setIsOpen(false); }}
+                            className="text-sm font-black text-white uppercase tracking-widest hover:text-neon-green transition-colors"
+                          >
+                            {user.name}
+                          </button>
                           <div className="text-[10px] font-bold text-neon-green uppercase tracking-widest">
                             {user.role === 'admin' ? 'YÖNETİCİ' : (user.teamName || 'BİREYSEL')}
                           </div>
