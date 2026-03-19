@@ -1,0 +1,204 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { X, CreditCard, ShieldCheck, Lock } from 'lucide-react';
+import { cn } from '../lib/utils';
+
+interface PaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  reservationDetails: { date: string; slot: string } | null;
+}
+
+export default function PaymentModal({ isOpen, onClose, reservationDetails }: PaymentModalProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'iban'>('card');
+
+  const handlePayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    // Simulate payment
+    setTimeout(() => {
+      setIsProcessing(false);
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+        onClose();
+      }, 3000);
+    }, 2000);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+          >
+            <div className="p-8">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl font-black tracking-tighter uppercase text-white">Ödeme <span className="text-neon-green">Paneli</span></h3>
+                <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                  <X className="w-6 h-6 text-gray-500" />
+                </button>
+              </div>
+
+              {isSuccess ? (
+                <div className="py-12 text-center">
+                  <div className="w-20 h-20 bg-neon-green rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-neon-green/40">
+                    <ShieldCheck className="text-black w-10 h-10" />
+                  </div>
+                  <h4 className="text-2xl font-bold mb-2 text-white">Ödeme Başarılı!</h4>
+                  <p className="text-gray-400 mb-6">Rezervasyonunuz onaylandı. SMS ile bilgilendirme gönderildi.</p>
+                  <div className="p-4 rounded-2xl bg-neon-green/10 border border-neon-green/20 text-sm text-neon-green">
+                    <strong>Not:</strong> Kalan maç ücretini maç günü tesiste nakit veya kartla ödeyebilirsiniz.
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="p-4 rounded-2xl bg-black/40 border border-white/10 mb-6">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Rezervasyon Özeti</div>
+                    <div className="text-sm font-bold text-white">
+                      {reservationDetails?.date} | {reservationDetails?.slot}
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="text-sm text-gray-400">Kapora Tutarı</span>
+                      <span className="text-xl font-black text-neon-green">250.00 TL</span>
+                    </div>
+                  </div>
+
+                  <div className="flex p-1.5 bg-black/40 rounded-2xl mb-8 border border-white/5">
+                    <button
+                      onClick={() => setPaymentMethod('card')}
+                      className={cn(
+                        'flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all',
+                        paymentMethod === 'card' ? 'bg-neon-green text-black shadow-lg' : 'text-zinc-500 hover:text-white'
+                      )}
+                    >
+                      KREDİ KARTI
+                    </button>
+                    <button
+                      onClick={() => setPaymentMethod('iban')}
+                      className={cn(
+                        'flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all',
+                        paymentMethod === 'iban' ? 'bg-neon-green text-black shadow-lg' : 'text-zinc-500 hover:text-white'
+                      )}
+                    >
+                      IBAN / EFT
+                    </button>
+                  </div>
+
+                  {paymentMethod === 'card' ? (
+                    <form onSubmit={handlePayment} className="space-y-6">
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-1 block">Kart Sahibi</label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="AD SOYAD"
+                            className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
+                          />
+                        </div>
+                        <div className="relative">
+                          <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-1 block">Kart Numarası</label>
+                          <div className="relative">
+                            <input
+                              required
+                              type="text"
+                              placeholder="0000 0000 0000 0000"
+                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
+                            />
+                            <CreditCard className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="relative">
+                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-1 block">S.K.T</label>
+                            <input
+                              required
+                              type="text"
+                              placeholder="AA/YY"
+                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
+                            />
+                          </div>
+                          <div className="relative">
+                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-1 block">CVV</label>
+                            <input
+                              required
+                              type="text"
+                              placeholder="000"
+                              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-neon-green transition-colors font-bold placeholder:text-gray-700 text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest justify-center">
+                        <Lock className="w-3 h-3" />
+                        256-BIT SSL GÜVENLİ ÖDEME
+                      </div>
+
+                      <button
+                        disabled={isProcessing}
+                        type="submit"
+                        className="w-full py-5 bg-neon-green text-black font-black rounded-2xl hover:scale-[1.02] transition-transform shadow-xl shadow-neon-green/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                      >
+                        {isProcessing ? (
+                          <div className="w-6 h-6 border-4 border-black/20 border-t-black rounded-full animate-spin" />
+                        ) : (
+                          'KAPORA ÖDE VE ONAYLA'
+                        )}
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="p-6 rounded-2xl bg-neon-green/5 border border-neon-green/10 space-y-4">
+                        <div>
+                          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Banka Adı</div>
+                          <div className="font-bold text-white">MEZ BANK A.Ş.</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Hesap Sahibi</div>
+                          <div className="font-bold text-white">MEZ HALISAHA İŞLETMELERİ</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">IBAN</div>
+                          <div className="font-mono font-bold text-white break-all">TR00 0000 0000 0000 0000 0000 00</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Açıklama</div>
+                          <div className="font-bold text-neon-green uppercase">REZ-{reservationDetails?.slot.split(' ')[0]}</div>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-gray-500 text-center leading-relaxed">
+                        * Ödemeyi yaptıktan sonra dekontunuzu WhatsApp üzerinden iletmeyi unutmayın. 
+                        Rezervasyonunuz dekont sonrası onaylanacaktır.
+                      </p>
+                      <button
+                        onClick={() => setIsSuccess(true)}
+                        className="w-full py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all shadow-xl"
+                      >
+                        ÖDEMEYİ YAPTIM
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
