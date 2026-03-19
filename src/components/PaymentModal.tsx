@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CreditCard, ShieldCheck, Lock } from 'lucide-react';
+import { X, CreditCard, ShieldCheck, Lock, Copy, Check } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -17,6 +17,17 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
   const [isSuccess, setIsSuccess] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'iban'>('card');
   const [error, setError] = useState<string | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const IBAN = "TR12 0006 2000 5710 0006 6164 45";
+  const ACCOUNT_HOLDER = "Mazlum Kör";
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    toast.success(`${field} kopyalandı!`);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +104,7 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                   <h4 className="text-2xl font-bold mb-2 text-white">Ödeme Başarılı!</h4>
                   <p className="text-gray-400 mb-6">Rezervasyonunuz onaylandı. E-posta ile bilgilendirme gönderildi.</p>
                   <div className="p-4 rounded-2xl bg-neon-green/10 border border-neon-green/20 text-sm text-neon-green">
-                    <strong>Not:</strong> Kalan maç ücretini maç günü tesiste nakit veya kartla ödeyebilirsiniz.
+                    <strong>Not:</strong> Kalan 2.500 TL tutarı maç günü tesiste nakit veya kartla ödeyebilirsiniz.
                   </div>
                 </div>
               ) : (
@@ -103,9 +114,18 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                     <div className="text-sm font-bold text-white">
                       {reservationDetails?.date} | {reservationDetails?.slot}
                     </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="text-sm text-gray-400">Kapora Tutarı</span>
-                      <span className="text-xl font-black text-neon-green">250.00 TL</span>
+                    <div className="mt-4 flex flex-col gap-2">
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>Saha Ücreti</span>
+                        <span>3.000 TL</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-400">Kapora Tutarı</span>
+                        <span className="text-xl font-black text-neon-green">500.00 TL</span>
+                      </div>
+                      <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest text-right">
+                        Kalan: 2.500 TL (Sahada Ödenecek)
+                      </div>
                     </div>
                   </div>
 
@@ -176,9 +196,21 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest justify-center">
-                        <Lock className="w-3 h-3" />
-                        256-BIT SSL GÜVENLİ ÖDEME
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="flex items-center gap-4 opacity-50 grayscale hover:grayscale-0 transition-all">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-6" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Troy_logo.svg/1200px-Troy_logo.svg.png" alt="Troy" className="h-4" />
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                            <Lock className="w-3 h-3 text-neon-green" />
+                            256-BIT SSL GÜVENLİ ÖDEME
+                          </div>
+                          <div className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest">
+                            Kart bilgileriniz sunucularımızda saklanmaz
+                          </div>
+                        </div>
                       </div>
 
                       {error && (
@@ -204,15 +236,31 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                       <div className="p-6 rounded-2xl bg-neon-green/5 border border-neon-green/10 space-y-4">
                         <div>
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Banka Adı</div>
-                          <div className="font-bold text-white">MEZ BANK A.Ş.</div>
+                          <div className="font-bold text-white">GARANTİ BANKASI</div>
                         </div>
-                        <div>
+                        <div className="group relative">
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Hesap Sahibi</div>
-                          <div className="font-bold text-white">MEZ HALISAHA İŞLETMELERİ</div>
+                          <div className="flex items-center justify-between">
+                            <div className="font-bold text-white">{ACCOUNT_HOLDER}</div>
+                            <button 
+                              onClick={() => copyToClipboard(ACCOUNT_HOLDER, "İsim Soyisim")}
+                              className="p-2 hover:bg-neon-green/20 rounded-lg transition-colors text-neon-green"
+                            >
+                              {copiedField === "İsim Soyisim" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            </button>
+                          </div>
                         </div>
-                        <div>
+                        <div className="group relative">
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">IBAN</div>
-                          <div className="font-mono font-bold text-white break-all">TR00 0000 0000 0000 0000 0000 00</div>
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="font-mono font-bold text-white break-all text-xs">{IBAN}</div>
+                            <button 
+                              onClick={() => copyToClipboard(IBAN, "IBAN")}
+                              className="p-2 hover:bg-neon-green/20 rounded-lg transition-colors text-neon-green shrink-0"
+                            >
+                              {copiedField === "IBAN" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            </button>
+                          </div>
                         </div>
                         <div>
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Açıklama</div>
