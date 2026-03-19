@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Users, Lock, ArrowRight, ShieldCheck, User } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { toast } from 'sonner';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -43,6 +44,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       if (!response.ok) {
         throw new Error(data.error || 'Bir hata oluştu.');
       }
+
+      toast.success(isLogin ? 'Giriş başarılı!' : 'Kayıt başarılı!', {
+        description: `${email} adresine bilgilendirme e-postası gönderildi (Simülasyon).`
+      });
 
       onLoginSuccess(data.user);
       onClose();

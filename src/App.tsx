@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import { Toaster } from 'sonner';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
@@ -81,6 +82,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-neon-green selection:text-black">
+      <Toaster position="top-center" expand={false} richColors theme="dark" />
       <Navbar onLoginClick={() => setIsLoginOpen(true)} user={user} onLogout={handleLogout} />
       
       <main>

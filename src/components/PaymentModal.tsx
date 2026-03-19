@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, CreditCard, ShieldCheck, Lock } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -42,6 +43,10 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
         const data = await response.json();
         throw new Error(data.error || 'Rezervasyon sırasında bir hata oluştu.');
       }
+
+      toast.success('Rezervasyon Başarılı!', {
+        description: `${user?.email || 'E-posta'} adresine onay e-postası gönderildi (Simülasyon).`
+      });
 
       setIsSuccess(true);
       setTimeout(() => {
@@ -86,7 +91,7 @@ export default function PaymentModal({ isOpen, onClose, reservationDetails, user
                     <ShieldCheck className="text-black w-10 h-10" />
                   </div>
                   <h4 className="text-2xl font-bold mb-2 text-white">Ödeme Başarılı!</h4>
-                  <p className="text-gray-400 mb-6">Rezervasyonunuz onaylandı. SMS ile bilgilendirme gönderildi.</p>
+                  <p className="text-gray-400 mb-6">Rezervasyonunuz onaylandı. E-posta ile bilgilendirme gönderildi.</p>
                   <div className="p-4 rounded-2xl bg-neon-green/10 border border-neon-green/20 text-sm text-neon-green">
                     <strong>Not:</strong> Kalan maç ücretini maç günü tesiste nakit veya kartla ödeyebilirsiniz.
                   </div>

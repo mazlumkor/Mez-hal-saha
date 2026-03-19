@@ -54,6 +54,7 @@ async function startServer() {
     }
 
     const { password: _, ...userWithoutPassword } = user;
+    console.log(`[EMAIL NOTIFICATION] Giriş Yapıldı: ${email}`);
     res.json({ user: userWithoutPassword, token: 'mock-jwt-token' });
   });
 
@@ -68,6 +69,7 @@ async function startServer() {
     users.push(newUser);
 
     const { password: _, ...userWithoutPassword } = newUser;
+    console.log(`[EMAIL NOTIFICATION] Yeni Kayıt: ${email} (${name})`);
     res.json({ user: userWithoutPassword, token: 'mock-jwt-token' });
   });
 
