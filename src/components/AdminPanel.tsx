@@ -13,6 +13,8 @@ export default function AdminPanel({ user, onClose }: AdminPanelProps) {
   const [reservations, setReservations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [deleteConfirm, setDeleteConfirm] = useState<{ date: string; slot: string } | null>(null);
+
   useEffect(() => {
     fetchReservations();
     
@@ -34,13 +36,12 @@ export default function AdminPanel({ user, onClose }: AdminPanelProps) {
   };
 
   const handleDelete = async (date: string, slot: string) => {
-    if (!window.confirm('Bu rezervasyonu silmek istediğinize emin misiniz?')) return;
-
     try {
       const response = await fetch(`/api/reservations/${date}/${slot}`, {
         method: 'DELETE'
       });
       if (response.ok) {
+        setDeleteConfirm(null);
         fetchReservations();
       }
     } catch (error) {
@@ -92,17 +93,36 @@ export default function AdminPanel({ user, onClose }: AdminPanelProps) {
                   key={`${res.date}-${res.slot}`}
                   className="bg-zinc-900/50 border border-white/10 rounded-[2rem] p-6 hover:border-neon-green/30 transition-all group"
                 >
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="p-3 bg-neon-green/10 rounded-xl border border-neon-green/20">
-                      <Calendar className="w-5 h-5 text-neon-green" />
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-neon-green/10 rounded-xl border border-neon-green/20">
+                        <Calendar className="w-5 h-5 text-neon-green" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {deleteConfirm?.date === res.date && deleteConfirm?.slot === res.slot ? (
+                          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2">
+                            <button 
+                              onClick={() => setDeleteConfirm(null)}
+                              className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-widest"
+                            >
+                              İptal
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(res.date, res.slot)}
+                              className="px-3 py-1.5 bg-red-500 text-white text-[10px] font-black rounded-lg hover:bg-red-600 transition-colors uppercase tracking-widest"
+                            >
+                              Sil
+                            </button>
+                          </div>
+                        ) : (
+                          <button 
+                            onClick={() => setDeleteConfirm({ date: res.date, slot: res.slot })}
+                            className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <button 
-                      onClick={() => handleDelete(res.date, res.slot)}
-                      className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
 
                   <div className="space-y-4">
                     <div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, addDays, startOfToday } from 'date-fns';
 import { tr } from 'date-fns/locale';
@@ -22,6 +22,13 @@ export default function ReservationCalendar({ onSelectSlot }: ReservationCalenda
   const [selectedDate, setSelectedDate] = useState(startOfToday());
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [reservedSlots, setReservedSlots] = useState<Reservation[]>([]);
+  const summaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selectedSlot && summaryRef.current) {
+      summaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [selectedSlot]);
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -174,6 +181,7 @@ export default function ReservationCalendar({ onSelectSlot }: ReservationCalenda
             <AnimatePresence>
               {selectedSlot && (
                 <motion.div
+                  ref={summaryRef}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
