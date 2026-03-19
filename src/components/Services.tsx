@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Footprints, ShowerHead, Coffee, Video, CreditCard, RefreshCcw, ShieldCheck } from 'lucide-react';
+import { Footprints, ShowerHead, Coffee, Video, CreditCard, RefreshCcw, ShieldCheck, Car, Wifi, User, Shirt } from 'lucide-react';
 import { SERVICES } from '../constants';
 
 const iconMap: Record<string, any> = {
@@ -11,6 +11,10 @@ const iconMap: Record<string, any> = {
   CreditCard,
   RefreshCcw,
   ShieldCheck,
+  Car,
+  Wifi,
+  User,
+  Shirt,
 };
 
 export default function Services() {
@@ -39,16 +43,28 @@ export default function Services() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="group p-10 rounded-[2.5rem] bg-white/5 border border-white/10 hover:border-neon-green/50 hover:bg-white/10 transition-all duration-500 relative overflow-hidden"
+                className="group p-10 rounded-[2.5rem] bg-zinc-900 border border-white/10 hover:border-neon-green/50 transition-all duration-500 relative overflow-hidden h-[400px] flex flex-col justify-end"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-neon-green/5 blur-3xl rounded-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="w-16 h-16 rounded-2xl bg-neon-green/10 flex items-center justify-center mb-8 group-hover:bg-neon-green transition-all duration-500 shadow-lg shadow-neon-green/0 group-hover:shadow-neon-green/20">
-                  <Icon className="w-8 h-8 text-neon-green group-hover:text-black transition-colors duration-500" />
+                {/* Background Image */}
+                <div className="absolute inset-0 z-0">
+                  <img 
+                    src={service.image} 
+                    alt={service.title}
+                    className="w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-opacity duration-500 group-hover:scale-110"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
                 </div>
-                <h3 className="text-2xl font-black mb-4 text-white uppercase tracking-tight">{service.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed font-medium">
-                  {service.description}
-                </p>
+
+                <div className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-neon-green/10 flex items-center justify-center mb-8 group-hover:bg-neon-green transition-all duration-500 shadow-lg shadow-neon-green/0 group-hover:shadow-neon-green/20">
+                    <Icon className="w-8 h-8 text-neon-green group-hover:text-black transition-colors duration-500" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-4 text-white uppercase tracking-tight">{service.title}</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed font-medium">
+                    {service.description}
+                  </p>
+                </div>
               </motion.div>
             );
           })}
